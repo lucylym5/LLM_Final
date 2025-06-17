@@ -13,6 +13,7 @@ def load_documents(folder_path):
             with open(os.path.join(folder_path, filename), 'r',encoding='utf-8') as file:
                 documents.append(file.read()) #将文件内容读取为字符串添加到列表中
     return documents
+
 rule = load_documents("./")
 
 # 角色初始化
@@ -64,7 +65,9 @@ game_state={
 
 # 夜晚狼人协商
 def night_kill():
+    # get wolves role
     wolves =  [r for r in role_names if role_identity.get(r) == "狼人" and r not in game_state["死者"]]
+    # ?
     if role_identity.get(user_role) == "狼人" and user_role not in game_state["死者"]:
         wolves += [user_role]
     wolf_log = []
@@ -123,6 +126,11 @@ def night_kill():
 
 # 狼人协商 prompt
 def build_wolf_prompt(role):
+    print("=========================================")
+    print(f"你是{role}，请和同伴协商今晚要杀谁。\n"
+        f"这是之前所有人的全部聊天记录：\n" + "\n".join(role_memory[role]) +
+        f"\n请你据此继续表达意见。请在发言最后明确写出“我认为应该杀玩家X”，其中X为序号。")
+    print("==============================================")
     return (
         f"你是{role}，请和同伴协商今晚要杀谁。\n"
         f"这是之前所有人的全部聊天记录：\n" + "\n".join(role_memory[role]) +
