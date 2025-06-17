@@ -64,12 +64,7 @@ game_state={
 }
 
 # 夜晚狼人协商
-<<<<<<< HEAD
-def night_kill():
-    # get wolves role
-=======
 def night_kill(count_s, count_p):
->>>>>>> 9fd6cca1f1918cc8dfca48a496f510176b5b7a43
     wolves =  [r for r in role_names if role_identity.get(r) == "狼人" and r not in game_state["死者"]]
     # ?
     if role_identity.get(user_role) == "狼人" and user_role not in game_state["死者"]:
@@ -208,11 +203,6 @@ def night_kill(count_s, count_p):
 
 # 狼人协商 prompt
 def build_wolf_prompt(role):
-    print("=========================================")
-    print(f"你是{role}，请和同伴协商今晚要杀谁。\n"
-        f"这是之前所有人的全部聊天记录：\n" + "\n".join(role_memory[role]) +
-        f"\n请你据此继续表达意见。请在发言最后明确写出“我认为应该杀玩家X”，其中X为序号。")
-    print("==============================================")
     return (
         f"你是{role}，请决定今晚要杀谁。\n"
         f"这是之前所有人的全部聊天记录：\n" + "\n".join(role_memory[role]) +
