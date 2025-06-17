@@ -64,8 +64,12 @@ game_state={
 }
 
 # 夜晚狼人协商
+<<<<<<< HEAD
 def night_kill():
     # get wolves role
+=======
+def night_kill(count_s, count_p):
+>>>>>>> 9fd6cca1f1918cc8dfca48a496f510176b5b7a43
     wolves =  [r for r in role_names if role_identity.get(r) == "狼人" and r not in game_state["死者"]]
     # ?
     if role_identity.get(user_role) == "狼人" and user_role not in game_state["死者"]:
@@ -79,7 +83,7 @@ def night_kill():
         print(f"\n--- 第{round_num}轮协商 ---")
         for wolf in wolves:
             if wolf == user_role:
-                user_input = input(f"你是{role_identity.get(user_role)}，请输入你的行动建议：")
+                user_input = input(f"你是{role_identity.get(user_role)}，请输入你的行动建议：（例：……我认为应该杀玩家X。）")
                 wolf_log.append(f"{user_role}：{user_input}")
                 for w in role_names:
                     if role_identity.get(w) == "狼人":
@@ -114,15 +118,93 @@ def night_kill():
                 print(f"狼人意见不一，平票中随机选择，击杀目标为：{target}")
 
     # 记录击杀
-    game_state["死者"].append(target)
     print(f"[夜晚] 狼人杀死了：{target}\n")
     for w in role_names:
         if role_identity.get(w) == "狼人":
             role_memory[w].append(f"狼人密谋结束，你们决定杀{target}")
-    for r in role_names:
-        role_memory[w].append(f"天亮了，今天晚上死的是{target}")
 
-   
+    
+    # 预言家查验
+    alive_roles = [r for r in role_names if r not in game_state["死者"]]
+    if user_role not in game_state["死者"]:
+        alive_roles += [user_role]
+    for role in alive_roles:
+        if role_identity.get(role) == "预言家":
+            if role == user_role:
+                user_input = input(f"{role}，你是预言家，请输入你要查验的人：")
+                if "狼人" in role_identity.get(user_input):
+                    identity = "坏人"
+                else:
+                    identity = "好人"
+                print(f"{user_input}是{identity}")
+
+            else:
+                reply=generate_response(role,check_prompt(role))
+                if "狼人" in role_identity.get(reply):
+                    identity = "坏人"
+                else:
+                    identity = "好人"
+                print(f"预言家{role}进行了查验，{reply}是{identity}")
+                role_memory[role].append(f"你作为预言家，在第{game_state['轮数']}天晚上查验了{reply}，他是{identity}")
+
+
+    # 女巫用药（注意前面有两个全局变量count_s, count_p）
+    alive_roles = [r for r in role_names if r not in game_state["死者"]]
+    if user_role not in game_state["死者"]:
+        alive_roles += [user_role]
+    for role in alive_roles:
+        if role_identity.get(role) == "女巫":
+            if role == user_role:
+                if count_s == 0:
+                    user_input = input(f"{role}，你是女巫，今天晚上死的人是：{target}，你要救吗？是/否")
+                    if user_input == "否":
+                        game_state["死者"].append(target)
+                    else:
+                        count_s += 1
+                        continue
+                if count_p == 0:
+                    user_input = input(f"你要使用毒药吗？是/否")
+                    if user_input == "是":
+                        poison = input(f"你要毒的人是？（例：玩家X）")
+                        game_state["死者"].append(poison)
+                        count_p += 1
+                    else:
+                        break                  
+            else:
+                if count_s == 0:
+                    prompt1 = f"这是之前的全部游戏记录：\n" + f"\n".join(role_memory[role]) + f"今天晚上{target}死了，你要救他吗？请直接回答是/否，不要加标点。"
+                    choice = generate_response(role, prompt1)
+                    if choice == "否":
+                        game_state["死者"].append(target)
+                        role_memory[role].append(f"你是女巫，在第{game_state['轮数']}天晚上{target}死了，你没有使用解药救他。")
+                        print(f"女巫{role}没有使用解药")
+                    else:
+                        count_s += 1
+                        role_memory[role].append(f"你是女巫，在第{game_state['轮数']}天晚上{target}死了，你使用解药救了他。")
+                        print(f"女巫{role}使用解药救了{target}")
+                        continue
+                if count_p == 0:
+                    prompt2 = f"这是之前的全部游戏记录：\n" + f"\n".join(role_memory[role]) + f"请问你要使用毒药吗？请直接回答是/否，不要加标点。"
+                    choice = generate_response(role, prompt2)
+                    if choice == "是":
+                        prompt3 = f"这是之前的全部游戏记录：\n" + f"\n".join(role_memory[role]) + f"你决定使用毒药，请问你要毒杀的玩家是谁？请直接回答玩家名（例如：玩家X），不要加标点。"
+                        poison =  generate_response(role, prompt3)
+                        print()
+                        game_state["死者"].append(poison)
+                        role_memory[role].append(f"在第{game_state['轮数']}天晚上你使用了毒药，毒死了{poison}。")
+                        print(f"女巫{role}使用毒药毒死了{poison}")
+                        count_p += 1
+                    else:
+                        role_memory[role].append(f"在第{game_state['轮数']}天晚上你没有使用毒药。")
+                        print(f"女巫{role}没有使用毒药")
+                        break
+
+    # 公布死亡情况
+    print(f"[夜晚结束] 今夜死亡名单：{game_state['死者']}")
+    for r in role_names:
+        role_memory[role].append(f"[夜晚结束] 今夜死亡名单：{game_state['死者']}")
+
+
 
 # 狼人协商 prompt
 def build_wolf_prompt(role):
@@ -132,9 +214,16 @@ def build_wolf_prompt(role):
         f"\n请你据此继续表达意见。请在发言最后明确写出“我认为应该杀玩家X”，其中X为序号。")
     print("==============================================")
     return (
-        f"你是{role}，请和同伴协商今晚要杀谁。\n"
+        f"你是{role}，请决定今晚要杀谁。\n"
         f"这是之前所有人的全部聊天记录：\n" + "\n".join(role_memory[role]) +
         f"\n请你据此继续表达意见。请在发言最后明确写出“我认为应该杀玩家X”，其中X为序号。"
+    )
+
+# 预言家查验prompt
+def check_prompt(role):
+    return(
+        f"这是之前的全部游戏记录：\n" + "\n".join(role_memory[role]) +
+        f"你是预言家，请直接说出你想查验的玩家名（格式：玩家X）。"
     )
 
 # 白天角色发言prompt
@@ -249,9 +338,9 @@ def day_vote():
         else:
             reply = generate_response(role, vote_prompt(role))
             print(f"{role} 投票给 {reply}")
+            votes[reply] = votes.get(reply, 0) + 1
             for r in role_names:
                 role_memory[r].append(f"{role} 投票给 {reply}")
-            votes[reply] = votes.get(r, 0) + 1
     print("投票结果：")
     for r in role_names:
         role_memory[r].append("投票结果：")
@@ -295,12 +384,9 @@ def day_vote():
             else:
                 reply = generate_response(role, again_vote(role, top_candidates))
                 print(f"{role} 投票给 {reply}")
+                votes2[reply] = votes2.get(reply, 0) + 1
             for r in role_names:
                 role_memory[r].append(f"{role} 投票给 {reply}")
-            for r in alive_roles:
-                if r in reply:
-                    votes2[r] = votes2.get(r, 0) + 1
-                break
         print("二轮投票结果：")
         for r in role_names:
             role_memory[r].append("二轮投票结果：")
@@ -324,7 +410,7 @@ def day_vote():
 #主函数
 def main():
     print(f"你好，欢迎来到狼人杀互动创作空间，下面你将参与一场狼人杀游戏。\n"+f"你的用户名是{user_role}，身份为{role_identity.get(user_role)}。游戏开始。\n")
-    night_kill()
+    night_kill(0, 0)
     game_state["阶段"] = "白天"
     play_round()
     day_vote()
