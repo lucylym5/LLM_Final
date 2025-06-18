@@ -10,7 +10,7 @@ from typing import *
 from src.config.config import Config
 
 class Role:
-    def __init__(self,name:List[str],role:List[str],model):
+    def __init__(self, name:str, role:str, model):
         self.name = name
         self.role = role
         self.message = []
@@ -47,7 +47,7 @@ class Role:
     
     def again_prompt(self):
         return(
-            f"你是{self.name}，目前投票中得票最多但出现平票"
+            f"你是{self.name}，目前投票中得票最多但出现平票。"
             f"\n这是之前所有人的全部行动记录: \n" + "\n".join(self.memory) + 
             f"请据此为自己辩护。\n"
         )
@@ -59,7 +59,13 @@ class Role:
             f"请据此投票决定候选人中你最希望谁出局。请直接说出你要投票的玩家名，不要说任何其他内容。\n"
         )
     
-        #生成回答
+    def check_prompt(self):
+        return(
+            f"这是之前的全部游戏记录：\n" + "\n".join(self.memory) +
+            f"你是预言家，请直接说出你想查验的玩家名（格式：玩家X）。"
+        )
+
+    #生成回答
     def generate_response(self, prompt):
         model = self.model
         system = Config.role_system_prompts.get(self.name)
@@ -72,12 +78,6 @@ class Role:
         reply = response.choices[0].message.content.strip()
         return reply
     
-    # 预言家查验prompt
-    def check_prompt(self):
-        return(
-            f"这是之前的全部游戏记录：\n" + "\n".join(self.memory) +
-            f"你是预言家，请直接说出你想查验的玩家名（格式：玩家X）。"
-        )
 
 
 class BaseEnv:
