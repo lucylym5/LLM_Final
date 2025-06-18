@@ -73,8 +73,6 @@ class GameRule:
                     target = random.choice(top_targets)
                     print(f"狼人意见不一，平票中随机选择，击杀目标为：{target}")
 
-        # 记录击杀
-        self.game_state["死者"].append(target)
         print(f"[夜晚] 狼人杀死了：{target}\n")
         for role in self.role_list:
             if role.name == "狼人":
@@ -131,7 +129,7 @@ class GameRule:
                         if choice == "否":
                             self.game_state["死者"].append(target)
                             role.memory.append(f"你是女巫，在第{self.game_state['轮数']}天晚上{target}死了，你没有使用解药救他。")
-                            print(f"女巫{role}没有使用解药")
+                            print(f"女巫{role.name}没有使用解药")
                         else:
                             self.count_s += 1
                             role.memory.append(f"你是女巫，在第{self.game_state['轮数']}天晚上{target}死了，你使用解药救了他。")

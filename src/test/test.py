@@ -5,9 +5,6 @@ from src.config.config import Config
 from src.env.env import *
 from src.policy.policy import GameRule
 
-import random
-from openai import OpenAI
-from collections import Counter
 
 
 
