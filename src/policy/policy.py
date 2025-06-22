@@ -90,7 +90,7 @@ class GameRule:
             if role.name not in self.game_state["死者"]:
                 alive_roles.append(role)
 
-        predi_role = self.get_role(role="预言家")
+        predi_role = self.get_role(role_name="预言家")
         if predi_role.name == user_role:
             user_input = input(f"{predi_role.name}，你是预言家，请输入你要查验的人(请填写 玩家+序号):")
             if "狼人" in self.config.role_identity.get(user_input):
@@ -112,7 +112,7 @@ class GameRule:
         #===============================================
         '''                  女巫用药                 '''   
         #===============================================
-        witch_role = self.get_role(role="女巫")
+        witch_role = self.get_role(role_name="女巫")
         if witch_role.name not in self.game_state["死者"]:
             if witch_role.name == user_role:
                 if self.count_s == 0:
@@ -301,7 +301,6 @@ class GameRule:
                     return role
         if role_name is not None:
             for role in self.role_list:
-                print(role.role)
                 if role.role == role_name:
                     return role
 
