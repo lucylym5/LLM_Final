@@ -19,7 +19,7 @@ class Role:
         
     def build_wolf_prompt(self):
         return (
-            f"你是{self.name}，请和同伴协商今晚要杀谁。\n"
+            f"你是{self.name}，请和同伴协商今晚要杀谁。当场上预言家和女巫均死亡，或3名村民全部死亡，你们将获得胜利。\n"
             f"这是之前所有人的全部聊天记录：\n" + "\n".join(self.memory) +
             f"\n请你据此继续表达意见。请在发言最后明确写出“我认为应该杀玩家X”，其中X为序号。"
         )
@@ -62,14 +62,17 @@ class Role:
     def check_prompt(self):
         return(
             f"这是之前的全部游戏记录：\n" + "\n".join(self.memory) +
-            f"你是预言家，请直接说出你想查验的玩家名（格式：玩家X）。"
+            f"你是预言家，你可以随机选择一个玩家查验他是好人还是坏人。请直接说出你想查验的玩家名（格式：玩家X）。"
         )
 
     #生成回答
     def generate_response(self, prompt):
         model = self.model
         system = Config.role_system_prompts.get(self.name)
-        messages = [{"role": "system", "content": system}] + self.message + [{"role": "user", "content": prompt}]
+        messages = [{"role": "system", "content": system},
+                    {"role": "user", "content": Config.rule_prompts},
+                    {"role": "assistant", "content": "我已经清楚了本次狼人杀的游戏规则和自己的角色，可以开始游戏。"},
+                    {"role": "user", "content": prompt}]
         response = model.chat.completions.create(
             model = "deepseek-chat" if "deepseek" in str(model.base_url) else "qwen-plus",
             messages = messages,

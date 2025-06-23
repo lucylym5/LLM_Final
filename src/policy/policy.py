@@ -3,6 +3,7 @@ sys.path.append(os.getcwd())
 
 from src.config.config import *
 from src.env.env import *
+from src.function.input import gui_input
 
 class GameRule:
     def __init__(self,
@@ -42,7 +43,7 @@ class GameRule:
             print(f"\n--- 第{round_num}轮协商 ---")
             for wolf_role in wolves:
                 if wolf_role.name == user_role:
-                    user_input = input(f"你是狼人，请输入你的行动建议（例：……我认为应该杀玩家X。）：")
+                    user_input = gui_input(f"你是狼人，请输入你的行动建议（例：……我认为应该杀玩家X。）：")
                     wolf_log.append(f"{user_role}：{user_input}")
                     for role in self.role_list:
                         if role.role == "狼人":
@@ -85,14 +86,13 @@ class GameRule:
         #===============================================
         '''                 预言家查验                '''   
         #===============================================
-        alive_roles = []
         for role in self.role_list:
             if role.name not in self.game_state["死者"]:
-                alive_roles.append(role)
+                self.alive_list.append(role)
 
         predi_role = self.get_role(role_name="预言家")
         if predi_role.name == user_role:
-            user_input = input(f"{predi_role.name}，你是预言家，请输入你要查验的人(请填写 玩家+序号):")
+            user_input = gui_input(f"{predi_role.name}，你是预言家，请输入你要查验的人(请填写 玩家+序号):")
             if "狼人" in self.config.role_identity.get(user_input):
                 identity = "坏人"
             else:
@@ -116,22 +116,22 @@ class GameRule:
         if witch_role.name not in self.game_state["死者"]:
             if witch_role.name == user_role:
                 if self.count_s == 0:
-                    user_input = input(f"{witch_role.name}，你是女巫，今天晚上死的人是：{target}，你要救吗？是/否")
+                    user_input = gui_input(f"{witch_role.name}，你是女巫，今天晚上死的人是：{target}，你要救吗？是/否")
                     if user_input == "是":
                         self.dead_list.pop()
                         self.count_s += 1
                 if self.count_p == 0:
-                    user_input = input(f"你要使用毒药吗？是/否")
+                    user_input = gui_input(f"你要使用毒药吗？是/否")
                     if user_input == "是":
-                        poison = input(f"目前存活玩家有：{[role.name for role in alive_roles]}。你要毒的人是？（例：玩家X）")
+                        poison = gui_input(f"目前存活玩家有：{[role.name for role in self.alive_list]}。你要毒的人是？（例：玩家X）")
                         self.dead_list.append(self.get_role(name=poison))
                         self.count_p += 1               
             else:
                 if self.count_s == 0:
                     if self.config.role_identity.get(target) == "女巫":
-                        prompt1 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"今天晚上{target}死了，也就是你自己，你要救你自己吗（建议回答 是）？请直接回答 是，不要加标点。建议回答是，这样胜利的机会更大"
+                        prompt1 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"你是女巫，今天晚上{target}也就是你自己被杀死了，你要使用解药复活自己吗？如果不使用，你将立即死亡！请直接回答 是/否，不要加标点。建议回答是，这样胜利的机会更大"
                     else:
-                        prompt1 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"今天晚上{target}死了，你要救他吗？请直接回答 是/否，不要加标点。"
+                        prompt1 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"你是女巫，今天晚上死的人是：{target}，你要使用解药复活他吗？如果不使用，他将立即死亡！请直接回答 是/否，不要加标点。"
                     choice = witch_role.generate_response(prompt1)
                     if choice == "否":
                         witch_role.memory.append(f"你是女巫，在第{self.game_state['轮数']}天晚上{target}死了，你没有使用解药救他。")
@@ -142,10 +142,10 @@ class GameRule:
                         witch_role.memory.append(f"你是女巫，在第{self.game_state['轮数']}天晚上{target}死了，你使用解药救了他。")
                         print(f"女巫{witch_role.name}使用解药救了{target}")
                 if self.count_p == 0:
-                    prompt2 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"请问你要使用毒药吗？请直接回答是/否，不要加标点。"
+                    prompt2 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"请问你要使用毒药杀死某个玩家吗？如果你毒死了狼人，这将对你的阵营非常有帮助！请直接回答是/否，不要加标点。"
                     choice = witch_role.generate_response(prompt2)
                     if choice == "是":
-                        prompt3 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"你决定使用毒药，请问你要毒杀的玩家是谁？目前存活玩家有：{[role.name for role in alive_roles]}。请直接回答玩家名（例如：玩家X），不要加标点。"
+                        prompt3 = f"这是之前的全部游戏记录：\n" + f"\n".join(witch_role.memory) + f"你决定使用毒药，请问你要毒杀的玩家是谁？目前存活玩家有：{[role.name for role in self.alive_list]}。请直接回答玩家名（例如：玩家X），不要加标点。"
                         poison =  witch_role.generate_response(prompt3)
                         print()
                         self.dead_list.append(self.get_role(name=poison))
@@ -163,8 +163,7 @@ class GameRule:
         else:
             print(f"[夜晚结束] 今夜死亡名单：{[role.name for role in self.dead_list]}")
             self.append_memory(f"[夜晚结束] 今夜死亡名单：{[role.name for role in self.dead_list]}")
-        # update alive list 
-        self.alive_list = alive_roles.copy()
+
         # update game state of dead
         for role in self.dead_list:
             self.game_state["死者"].append(role.name)
@@ -183,7 +182,7 @@ class GameRule:
                 role.memory.append(f"以下为死者发表遗言环节：")
             for role in self.dead_list:
                 if role.name == self.config.user_role:
-                    user_input = input(f"您是{role.name}，昨天晚上您死了，请发表遗言")
+                    user_input = gui_input(f"您是{role.name}，昨天晚上您死了，请发表遗言")
                     self.append_memory(f"{role.name}的遗言是：{user_input}")
                 else:
                     reply = role.generate_response(role.last_words())
@@ -200,7 +199,7 @@ class GameRule:
                 print(f"【{role.name}已死亡，跳过发言】")
                 continue
             if role.name == self.config.user_role:
-                user_input = input(f"你是{self.config.user_role}，请输入你的发言：")
+                user_input = gui_input(f"你是{self.config.user_role}，请输入你的发言：")
                 self.append_memory(f"{role.name}：{user_input}")
             else:
                 prompt = role.build_prompt(self.game_state)
@@ -218,7 +217,7 @@ class GameRule:
         votes = {}
         for role in alive_roles:
             if role.name == self.config.user_role:
-                vote = input(f"你是{self.config.user_role}，请输入你要投票的对象：")
+                vote = gui_input(f"你是{self.config.user_role}，请输入你要投票的对象：")
                 votes[vote] = votes.get(vote, 0) + 1
                 self.append_memory(f"{role.name} 投票给 {vote}")
 
@@ -250,7 +249,7 @@ class GameRule:
             self.append_memory(f"出现平票：{', '.join(top_candidates)}，开始重新发言与二轮投票:")
             for role in top_candidates_list:
                 if role.name == self.config.user_role:
-                    user_input = input(f"请为自己辩护：")
+                    user_input = gui_input(f"请为自己辩护：")
                     self.append_memory(f"{role.name}的辩护：{user_input}")
                 else:
                     reply = role.generate_response(role.again_prompt())
@@ -262,7 +261,7 @@ class GameRule:
                 if role.name in top_candidates:
                     continue
                 if role.name == self.config.user_role:
-                    vote = input(f"你是{self.config.user_role}，二轮投票请在以下候选中选择：{', '.join(top_candidates)}：")
+                    vote = gui_input(f"你是{self.config.user_role}，二轮投票请在以下候选中选择：{', '.join(top_candidates)}：")
                     votes2[vote] = votes2.get(vote, 0) + 1
                     self.append_memory(f"{role.name} 投票给 {vote}")
                 else:

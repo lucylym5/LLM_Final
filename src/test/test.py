@@ -6,8 +6,6 @@ from src.env.env import *
 from src.policy.policy import GameRule
 
 
-
-
 def main():
     #===============================================
     '''           Create Environment             '''   
