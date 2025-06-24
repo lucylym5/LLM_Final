@@ -5,7 +5,7 @@
 - **角色设计(Role)**：定义玩家特征，玩家名称、扮演角色、记忆等。
 - **游戏配置(Config)**：定义游戏基本配置，如使用模型、玩家角色以及游戏基本背景等。
 - **基本环境(BaseEnv)**：游戏角色配置初始化。
-- **交互窗口设计**：使用***创建交互窗口 
+- **交互窗口设计**：使用python自带的tkinter包创建交互窗口。
   
 - **系统流程图：**
 
@@ -17,7 +17,7 @@
 - **使用openai格式配置DeepSeek API：**
 ```python
 role_models={
-    "玩家2": OpenAI(api_key="sk-c29297e3a3d2470a93d7833bbeacc96b",
+    "玩家2": OpenAI(api_key="",
         base_url="https://api.deepseek.com")}
 ```
 - **初始化：**
