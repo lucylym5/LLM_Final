@@ -106,7 +106,11 @@ class GameRule:
             print(f"{user_input}是{identity}")
 
         else:
-            reply=predi_role.generate_response(predi_role.check_prompt())
+            alive_names=[]
+            for role in self.alive_list:
+                alive_names.append(role.name)
+            prompt = f"这是当前存活玩家名单：{alive_names}" + predi_role.check_prompt()
+            reply=predi_role.generate_response(prompt)
             if "狼人" in self.config.role_identity.get(reply):
                 identity = "坏人"
             else:
@@ -206,7 +210,7 @@ class GameRule:
 
         for role in self.game_state["发言顺序"]:
             if role.name in self.game_state["死者"]:
-                print(f"【{role.name}】已死亡，跳过发言")
+                print(f"{role.name}已死亡，跳过发言")
                 continue
             if role.name == self.config.user_role:
                 user_input = gui_input(f">>>你是{self.config.user_role}，请输入你的发言：")
