@@ -11,11 +11,11 @@ from src.config.config import Config
 
 class Role:
     def __init__(self, name:str, role:str, model):
-        self.name = name
-        self.role = role
+        self.name = name # 玩家编号
+        self.role = role # 玩家角色
         self.message = []
         self.model = model
-        self.memory = []
+        self.memory = [] # 玩家记忆
         
     def build_wolf_prompt(self):
         return (
@@ -62,7 +62,7 @@ class Role:
     def check_prompt(self):
         return(
             f"这是之前的全部游戏记录：\n" + "\n".join(self.memory) +
-            f"你是预言家，你可以随机选择一个玩家查验他是好人还是坏人。请直接说出你想查验的玩家名（格式：玩家X）。"
+            f"你是预言家，你可以随机选择一个玩家查验他是好人还是坏人。请直接说出你想查验的玩家名（格式：玩家X）。注意，不要说理由，直接说出玩家名（格式：玩家X）"
         )
 
     #生成回答

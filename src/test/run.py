@@ -8,6 +8,7 @@ from tkinter import scrolledtext
 from tkinter import ttk
 from functools import partial
 import threading
+import traceback
 
 from src.config.config import Config
 from src.env.env import *
@@ -153,6 +154,7 @@ def run_game():
             game_rule.day_vote()
         except Exception as e:
             print(f"出错：{e}")
+            traceback.print_exc()
         game_rule.dead_list = []    
         #===============================================
         '''             check completion             '''   

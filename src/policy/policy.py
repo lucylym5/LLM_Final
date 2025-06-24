@@ -86,6 +86,7 @@ class GameRule:
         #===============================================
         '''                 预言家查验                '''   
         #===============================================
+        self.alive_list = []
         for role in self.role_list:
             if role.name not in self.game_state["死者"]:
                 self.alive_list.append(role)
@@ -93,7 +94,12 @@ class GameRule:
         predi_role = self.get_role(role_name="预言家")
         if predi_role.name == user_role:
             user_input = gui_input(f">>>{predi_role.name}，你是预言家，请输入你要查验的人(请填写 玩家+序号):")
-            if "狼人" in self.config.role_identity.get(user_input):
+            if self.config.role_identity.get(user_input) is None:
+                check_role = random.choice(self.alive_list)
+                check_name = check_role.name
+            else:
+                check_name = user_input
+            if "狼人" in self.config.role_identity.get(check_name):
                 identity = "坏人"
             else:
                 identity = "好人"
@@ -166,6 +172,11 @@ class GameRule:
         # update game state of dead
         for role in self.dead_list:
             self.game_state["死者"].append(role.name)
+        # update alive list
+        self.alive_list = []
+        for role in self.role_list:
+            if role.name not in self.game_state["死者"]:
+                self.alive_list.append(role)
 
 
 
