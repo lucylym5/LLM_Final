@@ -56,7 +56,7 @@ def generate_response(self, prompt):
 ```python
 def __init__(self,config:Config,env:BaseEnv,role_list:List[Role]):
 ```
-##### 多智能体交互设计
+- **多智能体交互设计**
 在`GameRule`中，我们将狼人杀游戏分为：夜晚刀人、白天发言与投票环节。将对话内容放入每个角色的记忆当中，后使用合适的prompts生成回答以实现多智能体自动化交互功能。
 ```python
 def night_kill(self):
@@ -74,3 +74,4 @@ def day_vote(self):
     # 存活玩家根据发言内容进行顺序投票，投票最高者被放逐
     # 若一轮投票出现平票，将会举行二次投票
 ```
+#### 3. 交互窗口设计
