@@ -231,7 +231,7 @@ class GameRule:
         votes = {}
         for role in alive_roles:
             if role.name == self.config.user_role:
-                vote = gui_input(f">>>你是{self.config.user_role}，请输入你要投票的对象：")
+                vote = gui_input(f">>>你是{self.config.user_role}，请输入你要投票的对象（格式：玩家X）：")
                 votes[vote] = votes.get(vote, 0) + 1
                 self.append_memory(f"{role.name} 投票给 {vote}")
 
@@ -303,10 +303,12 @@ class GameRule:
                 print("【二轮投票结束】无人出局，进入黑夜")
                 self.append_memory(f"【二轮投票结束】无人出局，进入黑夜。")
     
+    # 模型记忆补充函数
     def append_memory(self,memory):
         for role in self.role_list:
             role.memory.append(memory)
     
+    # 玩家名和身份查询函数
     def get_role(self,name = None,role_name = None):
         if name is not None:
             for role in self.role_list:

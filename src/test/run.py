@@ -121,7 +121,7 @@ class StdoutRedirector(io.StringIO):
 
 sys.stdout = StdoutRedirector()
 
-
+# 聊天框发送输入
 def send():
     global user_input
     user_input = input_text.get("1.0", tk.END).strip()
@@ -135,7 +135,7 @@ send_button.grid(row=2, column=0, sticky="nsew")
 
 
 #===============================================
-'''                Game Start               '''   
+'''                游戏开始                   '''   
 #=============================================== 
 print(f"你好，欢迎来到狼人杀互动创作空间，下面你将参与一场狼人杀游戏。\n"+f"你的用户名是{config.user_role}, 请为每位玩家分配身份。")
 def run_game():
@@ -157,7 +157,7 @@ def run_game():
             traceback.print_exc()
         game_rule.dead_list = []    
         #===============================================
-        '''             check completion             '''   
+        '''             判断游戏是否结束               '''   
         #===============================================
         alive_roles = []
         for role in role_list:
@@ -178,7 +178,7 @@ def run_game():
 
 def threaded_run_game():
     threading.Thread(target=run_game).start()
-
+# 按钮开始游戏
 start_button = tk.Button(identity_frame, text="开始游戏", command=threaded_run_game)
 start_button.grid(row=1,column=7, padx=5)
 
