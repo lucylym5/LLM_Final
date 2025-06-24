@@ -48,12 +48,18 @@ for x, player in enumerate(Config.role_names):   # 遍历role_names中的玩家�
 # 聊天记录框
 chat_box = scrolledtext.ScrolledText(window, wrap=tk.WORD, font=("宋体", 10))
 chat_box.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+chat_box.tag_config("system", foreground="gray", justify="center", font=("宋体", 10))
+chat_box.tag_config("bubble_left", background="#f0f0f0", justify="left", lmargin1=10, lmargin2=10, rmargin=60, spacing3=5)
+chat_box.tag_config("bubble_right", background="#d2fdd2", justify="right", rmargin=10, lmargin1=60, lmargin2=60, spacing3=5)
+chat_box.tag_config("name_left", font=("黑体", 9, "bold"), foreground="#555555", justify="left", lmargin1=10)
+chat_box.tag_config("name_right", font=("黑体", 9, "bold"), foreground="#007700", justify="right", rmargin=10)
+
 
 
 # 输入区域
 input_frame = tk.Frame(window)
 input_frame.pack(padx=10, pady=10, fill=tk.X)
-input_text = tk.Text(input_frame, height=4, font=("宋体", 10), wrap=tk.WORD, bd=2, relief="groove")
+input_text = tk.Text(input_frame, height=4, font=("宋体", 12), wrap=tk.WORD, bd=2, relief="groove")
 input_text.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
 
 
@@ -96,12 +102,23 @@ def init_roles():
 # 将输出更改至聊天框
 class StdoutRedirector(io.StringIO):
     def write(self, s):
-        chat_box.insert(tk.END, s)
+        s = s.strip()
+        if not s:
+            return
+        elif "：" in s and ">>>" not in s:
+            name, content = s.split("：", 1)
+            if name == "玩家1":
+                chat_box.insert(tk.END, f"{name}：", "name_right")
+                chat_box.insert(tk.END, f"{content}\n", "bubble_right")
+            else:
+                chat_box.insert(tk.END, f"{name}：", "name_left")
+                chat_box.insert(tk.END, f"{content}\n", "bubble_left")
+        else:
+            chat_box.insert(tk.END, s + "\n", "system")
         chat_box.see(tk.END)
-        super().write(s)
+        super().write(s + "\n")
 
 sys.stdout = StdoutRedirector()
-
 
 
 def send():
@@ -114,9 +131,6 @@ def send():
 
 send_button = tk.Button(menu_frame, text="发送", command=send)
 send_button.grid(row=2, column=0, sticky="nsew")
-
-
-
 
 
 #===============================================
